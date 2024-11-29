@@ -1,16 +1,15 @@
 {
   "files": {
-    "main.css": "/FinalWavesSimulation/static/css/main.f855e6bc.css",
-    "main.js": "/FinalWavesSimulation/static/js/main.0efa3a8d.js",
+    "main.css": "/FinalWavesSimulation/static/css/main.e6c13ad2.css",
+    "main.js": "/FinalWavesSimulation/static/js/main.c947472a.js",
     "static/js/453.d66eefc2.chunk.js": "/FinalWavesSimulation/static/js/453.d66eefc2.chunk.js",
-    "static/media/logo.svg": "/FinalWavesSimulation/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "index.html": "/FinalWavesSimulation/index.html",
-    "main.f855e6bc.css.map": "/FinalWavesSimulation/static/css/main.f855e6bc.css.map",
-    "main.0efa3a8d.js.map": "/FinalWavesSimulation/static/js/main.0efa3a8d.js.map",
+    "main.e6c13ad2.css.map": "/FinalWavesSimulation/static/css/main.e6c13ad2.css.map",
+    "main.c947472a.js.map": "/FinalWavesSimulation/static/js/main.c947472a.js.map",
     "453.d66eefc2.chunk.js.map": "/FinalWavesSimulation/static/js/453.d66eefc2.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f855e6bc.css",
-    "static/js/main.0efa3a8d.js"
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.c947472a.js"
   ]
 }
