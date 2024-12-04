@@ -1,5 +1,21 @@
 .App {
-  text-align: center;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  @apply w-4 h-4 bg-blue-500 rounded-full border-none appearance-none;
+}
+
+
+/* Estilos para las tarjetas */
+.card {
+  @apply bg-white rounded-lg shadow-md transition-shadow hover:shadow-lg;
+}
+
+/* Animaciones suaves */
+.transition-all {
+  @apply transition-all duration-300 ease-in-out;
 }
 
 .App-logo {
