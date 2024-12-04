@@ -30,6 +30,8 @@ const EnhancedCavity = () => {
     width: Math.min(1200, window.innerWidth - 48),
     height: Math.min(600, window.innerHeight * 0.6)
   });
+  const [boundaryType, setBoundaryType] = useState('closed-closed');
+
 
   // Physical constants
   const c = 3e8; // Speed of light in m/s
@@ -61,7 +63,73 @@ const EnhancedCavity = () => {
   const fundamentalFreq = c / (2 * cavityLength);
   const modeFreq = fundamentalFreq * selectedMode;
 
+    // Nueva función para calcular frecuencias según tipo de frontera
+    const calculateFrequencies = (mode, boundaryType) => {
+        let fundamentalWavelength;
+        switch(boundaryType) {
+          case 'closed-closed':
+          case 'open-open':
+            fundamentalWavelength = 2 * cavityLength;
+            break;
+          case 'open-closed':
+            fundamentalWavelength = 4 * cavityLength;
+            break;
+          default:
+            fundamentalWavelength = 2 * cavityLength;
+        }
+        
+        const fundamentalFreq = c / fundamentalWavelength;
+        return {
+          fundamental: fundamentalFreq,
+          mode: fundamentalFreq * mode
+        };
+      };
+    
+    const frequencies = calculateFrequencies(selectedMode, boundaryType);
+
+
+    const generateBoundaryWalls = () => (
+        <g>
+          {/* Pared izquierda */}
+          <line 
+            x1="0" y1="0" x2="0" y2={dimensions.height}
+            stroke={boundaryType.startsWith('closed') ? "black" : "gray"}
+            strokeWidth={boundaryType.startsWith('closed') ? "4" : "2"}
+            strokeDasharray={boundaryType.startsWith('open') ? "5,5" : "none"}
+          />
+          {boundaryType.startsWith('closed') && (
+            <g>
+              <text x="10" y={dimensions.height-30} fill="gray" className="text-sm">
+                E ⊥ pared
+              </text>
+              <text x="10" y={dimensions.height-15} fill="gray" className="text-sm">
+                B ∥ pared
+              </text>
+            </g>
+          )}
+          
+          {/* Pared derecha */}
+          <line 
+            x1={cavityLength} y1="0" x2={cavityLength} y2={dimensions.height}
+            stroke={boundaryType.endsWith('closed') ? "black" : "gray"}
+            strokeWidth={boundaryType.endsWith('closed') ? "4" : "2"}
+            strokeDasharray={boundaryType.endsWith('open') ? "5,5" : "none"}
+          />
+          {boundaryType.endsWith('closed') && (
+            <g>
+              <text x={cavityLength-60} y={dimensions.height-30} fill="gray" className="text-sm">
+                E ⊥ pared
+              </text>
+              <text x={cavityLength-60} y={dimensions.height-15} fill="gray" className="text-sm">
+                B ∥ pared
+              </text>
+            </g>
+          )}
+        </g>
+      );
+
   // Generate harmonic points
+  // Función modificada para generar armónicos según tipo de frontera
   const generateHarmonicPoints = (field, mode) => {
     const points = [];
     const numPoints = 200;
@@ -72,14 +140,30 @@ const EnhancedCavity = () => {
       const x = (i / numPoints) * dimensions.width;
       const k = (mode * Math.PI) / dimensions.width;
       
-      // El componente temporal es el mismo para ambos campos (en fase temporal)
+      let spatialComponent;
+      switch(boundaryType) {
+        case 'closed-closed':
+          spatialComponent = field === 'E' ? 
+            Math.sin(k * x) : 
+            Math.cos(k * x);
+          break;
+        case 'open-open':
+          spatialComponent = field === 'E' ? 
+            Math.cos(k * x) : 
+            Math.sin(k * x);
+          break;
+        case 'open-closed':
+          spatialComponent = field === 'E' ? 
+            Math.cos(k * x - Math.PI/2) : 
+            Math.sin(k * x - Math.PI/2);
+          break;
+        default:
+          spatialComponent = field === 'E' ? 
+            Math.sin(k * x) : 
+            Math.cos(k * x);
+      }
+      
       const temporalComponent = Math.cos(2 * Math.PI * time);
-      
-      // El componente espacial está desfasado 90° entre E y B
-      const spatialComponent = field === 'E' ? 
-        Math.sin(k * x) :  // Campo E: seno
-        Math.cos(k * x);   // Campo B: coseno (desfasado 90°)
-      
       const y = dimensions.height/2 + (amplitude * maxField * visualScale) 
                * spatialComponent * temporalComponent;
       
@@ -239,7 +323,10 @@ const EnhancedCavity = () => {
     </g>
 );
 
-  return (
+
+
+
+return (
     <div className="w-full max-w-[1200px] mx-auto p-4">
       <Card className="w-full">
         <CardHeader>
@@ -267,39 +354,23 @@ const EnhancedCavity = () => {
                 </marker>
               </defs>
 
-             {/* Paredes conductoras con indicadores - AÑADIR AQUÍ */}
-  <g>
-    {/* Pared izquierda */}
-    <line x1="0" y1="0" x2="0" y2={dimensions.height} 
-          stroke="black" strokeWidth="4"/>
-    <text x="10" y={dimensions.height-30} className="text-sm">
-      E ⊥ pared
-    </text>
-    <text x="10" y={dimensions.height-15} className="text-sm">
-      B ∥ pared
-    </text>
+              {/* Paredes según tipo de frontera */}
+              {generateBoundaryWalls()}
 
-    {/* Pared derecha */}
-    <line x1={cavityLength} y1="0" x2={cavityLength} y2={dimensions.height} 
-          stroke="black" strokeWidth="4"/>
-    <text x={cavityLength-60} y={dimensions.height-30} className="text-sm">
-      E ⊥ pared
-    </text>
-    <text x={cavityLength-60} y={dimensions.height-15} className="text-sm">
-      B ∥ pared
-    </text>
-  </g>
+              {/* Grid */}
+              {generateGrid()}
 
-
-                {/* Grid */}
-                {generateGrid()}
-
-              {/* Cavity walls */}
-              <line x1="0" y1="0" x2="0" y2={dimensions.height} stroke="black" strokeWidth="2"/>
-              <line x1={cavityLength} y1="0" x2={cavityLength} y2={dimensions.height} stroke="black" strokeWidth="2"/>
-              <line x1="0" y1={dimensions.height/2} x2={cavityLength} y2={dimensions.height/2} stroke="gray" strokeDasharray="4"/>
+              {/* Eje central */}
+              <line 
+                x1="0" 
+                y1={dimensions.height/2} 
+                x2={cavityLength} 
+                y2={dimensions.height/2} 
+                stroke="gray" 
+                strokeDasharray="4"
+              />
               
-              {/* Standing waves */}
+              {/* Ondas Estacionarias */}
               {showEField && (
                 <polyline
                   points={generateHarmonicPoints('E', selectedMode)}
@@ -320,7 +391,7 @@ const EnhancedCavity = () => {
                 />
               )}
 
-              {/* Field vectors */}
+              {/* Vectores de Campo */}
               {showFieldVectors && (
                 <>
                   {showEField && generateFieldVectors('E', selectedMode)}
@@ -328,11 +399,11 @@ const EnhancedCavity = () => {
                 </>
               )}
 
-              {/* Nodes and antinodes */}
+              {/* Nodos y Antinodos */}
               {showEField && generateNodes('E', selectedMode)}
               {showBField && generateNodes('B', selectedMode)}
 
-              {/* Direction labels */}
+              {/* Etiquetas de Dirección */}
               <text x={cavityLength-40} y={dimensions.height/2-20} fill="gray">+z (propagación)</text>
               <text x={20} y={20} fill="red">+y (campo E)</text>
               <text x={20} y={dimensions.height-10} fill="blue">+x (campo B)</text>
@@ -340,7 +411,23 @@ const EnhancedCavity = () => {
           </div>
 
           <div className="w-full max-w-3xl space-y-4 mt-6">
-            {/* Resonance frequencies */}
+            {/* Selector de Tipo de Frontera */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Tipo de Frontera
+              </label>
+              <select 
+                value={boundaryType}
+                onChange={(e) => setBoundaryType(e.target.value)}
+                className="w-full p-2 border rounded"
+              >
+                <option value="closed-closed">Cerrado-Cerrado</option>
+                <option value="open-open">Abierto-Abierto</option>
+                <option value="open-closed">Abierto-Cerrado</option>
+              </select>
+            </div>
+
+            {/* Frecuencias de Resonancia */}
             <div className="p-4 bg-gray-100 rounded-lg">
               <h3 className="font-semibold mb-2">Frecuencias de Resonancia:</h3>
               <div className="space-y-2">
@@ -351,7 +438,7 @@ const EnhancedCavity = () => {
               </div>
             </div>
 
-            {/* Field magnitudes */}
+            {/* Magnitudes de Campo */}
             <div className="p-4 bg-gray-100 rounded-lg">
               <h3 className="font-semibold mb-2">Magnitudes de Campo:</h3>
               <div className="space-y-2">
@@ -361,7 +448,7 @@ const EnhancedCavity = () => {
               </div>
             </div>
 
-            {/* Controls */}
+            {/* Controles */}
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -408,7 +495,7 @@ const EnhancedCavity = () => {
                 />
               </div>
 
-              <div className="flex space-x-4">
+              <div className="flex flex-wrap gap-4">
                 <label className="flex items-center">
                   <input
                     type="checkbox"
@@ -438,20 +525,31 @@ const EnhancedCavity = () => {
                 </label>
               </div>
             </div>
-            {/* Boundary Conditions and Phase Information */}
-            <div className="p-4 bg-gray-100 rounded-lg mb-4">
-            <h3 className="font-semibold mb-2">Condiciones de Contorno y Fase:</h3>
-            <div className="space-y-2">
-                <p>• En las paredes conductoras (x = 0 y x = L):</p>
-                <p className="ml-4">- El campo E debe ser perpendicular a las paredes (nodos en las paredes)</p>
-                <p className="ml-4">- El campo B debe ser paralelo a las paredes (antinodos en las paredes)</p>
-                <p>• Relación de fase entre campos:</p>
-                <p className="ml-4">- Los campos E y B oscilan en fase temporal (suben y bajan juntos)</p>
-                <p className="ml-4">- Pero mantienen un desfase espacial de 90° (donde E es máximo, B es cero y viceversa)</p>
-            </div>
+
+            {/* Condiciones de Frontera */}
+            <div className="p-4 bg-gray-100 rounded-lg">
+              <h3 className="font-semibold mb-2">Condiciones de Contorno:</h3>
+              <div className="space-y-2">
+                <p>• Extremo Cerrado (Conductor):</p>
+                <p className="ml-4">- Campo E perpendicular (nodo)</p>
+                <p className="ml-4">- Campo B paralelo (antinodo)</p>
+                <p>• Extremo Abierto:</p>
+                <p className="ml-4">- Campo E paralelo (antinodo)</p>
+                <p className="ml-4">- Campo B perpendicular (nodo)</p>
+              </div>
             </div>
 
-            {/* Explanation */}
+            {/* Información de Fase */}
+            <div className="p-4 bg-gray-100 rounded-lg">
+              <h3 className="font-semibold mb-2">Relación de Fase:</h3>
+              <div className="space-y-2">
+                <p>• Los campos E y B:</p>
+                <p className="ml-4">- Oscilan en fase temporal</p>
+                <p className="ml-4">- Mantienen desfase espacial de 90°</p>
+              </div>
+            </div>
+
+            {/* Explicación */}
             <div className="text-sm text-gray-600 space-y-2">
               <p>• Las flechas rojas verticales representan el campo eléctrico (E)</p>
               <p>• Los puntos (⋅) y cruces (×) azules representan el campo magnético (B) saliendo/entrando del plano</p>

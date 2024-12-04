@@ -1,54 +1,62 @@
-.App {
-  min-height: 100vh;
-  background-color: #f8fafc;
+/* App.css */
+
+/* Global container centering */
+.container {
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding: 1rem !important;
 }
 
-input[type="range"]::-webkit-slider-thumb {
-  @apply w-4 h-4 bg-blue-500 rounded-full border-none appearance-none;
+/* Force center alignment */
+.center-all {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
 }
 
+/* Grid layout enforced centering */
+.grid-container {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 1.5rem !important;
+  width: 100% !important;
+}
 
-/* Estilos para las tarjetas */
+/* Responsive grid */
+@media (min-width: 1024px) {
+  .grid-container {
+    grid-template-columns: 2fr 1fr !important;
+  }
+}
+
+/* Card centering */
 .card {
-  @apply bg-white rounded-lg shadow-md transition-shadow hover:shadow-lg;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 100% !important;
 }
 
-/* Animaciones suaves */
-.transition-all {
-  @apply transition-all duration-300 ease-in-out;
+/* Content centering */
+.content-center {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Text centering */
+.text-center {
+  text-align: center !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* SVG container centering */
+.svg-container {
+  display: flex !important;
+  justify-content: center !important;
+  width: 100% !important;
 }
