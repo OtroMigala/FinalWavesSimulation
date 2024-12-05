@@ -153,40 +153,40 @@ const EnhancedCavity = () => {
     const visualScale = field === 'E' ? 1e5 : 1e8;
   
     for (let i = 0; i <= numPoints; i++) {
-      const x = (i / numPoints) * cavityLength;
-      //no generar puntos por fuera de la cavidad
-      if(x > cavityLength) break;
-
-      const k = (mode * Math.PI) / dimensions.width;
+      // Asegurar que x está dentro de la cavidad
+      const x = Math.min((i / numPoints) * cavityLength, cavityLength);
+      
+      // Calcular k usando cavityLength en lugar de dimensions.width
+      const k = (mode * Math.PI) / cavityLength;
       
       let spatialComponent;
-
-      if (boundaryType == 'closed-closed') {
-        spatialComponent = field === 'E' ? 
-          (x === 0 || cavityLength )? 0 : Math.sin(k * x) :
-          Math.cos(k * x);
-        
-      }
       switch(boundaryType) {
         case 'closed-closed':
           spatialComponent = field === 'E' ? 
-            Math.sin(k * x) : 
+            // Forzar nodos en los extremos para campo E
+            (x === 0 || x === cavityLength) ? 0 : Math.sin(k * x) :
+            // Campo B tiene antinodos en los extremos
             Math.cos(k * x);
           break;
+          
         case 'open-open':
           spatialComponent = field === 'E' ? 
-            Math.cos(k * x) : 
-            Math.sin(k * x);
+            // Campo E tiene antinodos en los extremos
+            Math.cos(k * x) :
+            // Campo B tiene nodos en los extremos
+            (x === 0 || x === cavityLength) ? 0 : Math.sin(k * x);
           break;
+          
         case 'open-closed':
           spatialComponent = field === 'E' ? 
-            Math.cos(k * x - Math.PI/2) : 
-            Math.sin(k * x - Math.PI/2);
+            // Antinodo en extremo abierto (x=0), nodo en extremo cerrado (x=L)
+            (x === cavityLength) ? 0 : Math.cos(k * x - Math.PI/2) :
+            // Nodo en extremo abierto, antinodo en extremo cerrado
+            (x === 0) ? 0 : Math.sin(k * x - Math.PI/2);
           break;
         default:
-          spatialComponent = field === 'E' ? 
-            Math.sin(k * x) : 
-            Math.cos(k * x);
+          spatialComponent = 0;
+          break;
       }
       
       const temporalComponent = Math.cos(2 * Math.PI * time);
@@ -197,7 +197,7 @@ const EnhancedCavity = () => {
     }
     
     return points.join(' ');
-  };
+};
 
   // Generate field vectors
   const generateFieldVectors = (field, mode) => {
