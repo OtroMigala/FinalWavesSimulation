@@ -1,38 +1,62 @@
-.App {
-  text-align: center;
+/* App.css */
+
+/* Global container centering */
+.container {
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding: 1rem !important;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Force center alignment */
+.center-all {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* Grid layout enforced centering */
+.grid-container {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 1.5rem !important;
+  width: 100% !important;
+}
+
+/* Responsive grid */
+@media (min-width: 1024px) {
+  .grid-container {
+    grid-template-columns: 2fr 1fr !important;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+/* Card centering */
+.card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 100% !important;
 }
 
-.App-link {
-  color: #61dafb;
+/* Content centering */
+.content-center {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Text centering */
+.text-center {
+  text-align: center !important;
+}
+
+/* SVG container centering */
+.svg-container {
+  display: flex !important;
+  justify-content: center !important;
+  width: 100% !important;
 }
