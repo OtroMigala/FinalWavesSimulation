@@ -1,19 +1,27 @@
 import React, { useState, useEffect } from 'react';
 
 const Card = ({ children, className = "" }) => (
-  <div className={`bg-white rounded-lg shadow-md ${className}`}>{children}</div>
+  <div className={`bg-white rounded-lg shadow-md flex flex-col items-center w-full ${className}`}>
+    {children}
+  </div>
 );
 
 const CardHeader = ({ children }) => (
-  <div className="p-4 border-b">{children}</div>
+  <div className="w-full p-4 border-b text-center flex justify-center items-center">
+    {children}
+  </div>
 );
 
 const CardTitle = ({ children }) => (
-  <h2 className="text-xl font-semibold">{children}</h2>
+  <h2 className="text-xl font-semibold text-center">
+    {children}
+  </h2>
 );
 
 const CardContent = ({ children }) => (
-  <div className="p-4">{children}</div>
+  <div className="w-full p-4 flex flex-col items-center">
+    {children}
+  </div>
 );
 
 
@@ -75,7 +83,7 @@ const WaveComparison = () => {
   }).join(' ');
 
   return (
-    <div className="container mx-auto flex flex-col items-center">
+    <div className="container mx-auto flex flex-col items-center w-full">
       <div className="w-full max-w-7xl flex flex-col lg:flex-row gap-8 p-4">
         {/* Columna izquierda - Visualizaciones */}
         <div className="w-full lg:w-2/3">
@@ -137,7 +145,9 @@ const WaveComparison = () => {
             <CardHeader>
               <CardTitle>Parámetros Físicos</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent >
+              {/* Parámetros Físicos */}
+            <div className="fixed right-0 top-1/4 bg-white shadow-lg rounded-l-lg p-4 border-l border-t border-b border-gray-200 z-50 max-w-xs">
               <div className="space-y-3">
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <span className="font-medium">Número de onda (k): </span>
@@ -160,6 +170,7 @@ const WaveComparison = () => {
                   <span className="text-gray-600"> u.a.</span>
                 </div>
               </div>
+            </div>
             </CardContent>
           </Card>
   
@@ -252,17 +263,32 @@ const WaveComparison = () => {
           </Card>
   
           {/* Panel de Información */}
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle>Información</CardTitle>
+                    <Card className="w-full flex flex-col items-center">
+            <CardHeader className="w-full text-center bg-gradient-to-r from-indigo-600 to-indigo-800">
+              <CardTitle className="text-white">Información</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2 text-sm text-gray-600">
-                <p>• Los campos E y B mantienen un desfase de 90°</p>
-                <p>• La energía de la onda es proporcional a A²ω²</p>
-                <p>• La velocidad de fase viene dada por v = λf</p>
-                <p>• Número de onda: k = 2π/λ</p>
-                <p>• Frecuencia angular: ω = 2πf</p>
+            <CardContent className="w-full flex justify-center p-6">
+              <div className="space-y-3 text-sm text-gray-600 text-center max-w-lg mx-auto">
+                <p className="flex items-center justify-center gap-2">
+                  <span className="text-indigo-500">•</span>
+                  Los campos E y B mantienen un desfase de 90°
+                </p>
+                <p className="flex items-center justify-center gap-2">
+                  <span className="text-indigo-500">•</span>
+                  La energía de la onda es proporcional a A²ω²
+                </p>
+                <p className="flex items-center justify-center gap-2">
+                  <span className="text-indigo-500">•</span>
+                  La velocidad de fase viene dada por v = λf
+                </p>
+                <p className="flex items-center justify-center gap-2">
+                  <span className="text-indigo-500">•</span>
+                  Número de onda: k = 2π/λ
+                </p>
+                <p className="flex items-center justify-center gap-2">
+                  <span className="text-indigo-500">•</span>
+                  Frecuencia angular: ω = 2πf
+                </p>
               </div>
             </CardContent>
           </Card>
