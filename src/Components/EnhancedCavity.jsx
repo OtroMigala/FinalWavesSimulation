@@ -32,6 +32,13 @@ const EnhancedCavity = () => {
   });
   const [boundaryType, setBoundaryType] = useState('closed-closed');
 
+  const [frequencies, setFrequencies] = useState({
+    fundamentalFreq: 0,
+    modeFreq: 0,
+    fundamentalWavelength: 0,
+    modeWavelength: 0
+  });
+
 
   // Physical constants
   const c = 3e8; // Speed of light in m/s
@@ -64,28 +71,37 @@ const EnhancedCavity = () => {
   const modeFreq = fundamentalFreq * selectedMode;
 
     // Nueva función para calcular frecuencias según tipo de frontera
-    const calculateFrequencies = (mode, boundaryType) => {
-        let fundamentalWavelength;
-        switch(boundaryType) {
-          case 'closed-closed':
-          case 'open-open':
-            fundamentalWavelength = 2 * cavityLength;
-            break;
-          case 'open-closed':
-            fundamentalWavelength = 4 * cavityLength;
-            break;
-          default:
-            fundamentalWavelength = 2 * cavityLength;
-        }
-        
-        const fundamentalFreq = c / fundamentalWavelength;
-        return {
-          fundamental: fundamentalFreq,
-          mode: fundamentalFreq * mode
-        };
-      };
+    const calculateFrequencies = (mode, boundaryType, cavityLength, c) => {
+      let fundamentalWavelength;
+      switch(boundaryType) {
+        case 'closed-closed':
+        case 'open-open':
+          fundamentalWavelength = 2 * cavityLength;
+          break;
+        case 'open-closed':
+          fundamentalWavelength = 4 * cavityLength;
+          break;
+        default:
+          fundamentalWavelength = 2 * cavityLength;
+      }
+      
+      const fundamentalFreq = c / fundamentalWavelength;
+      const modeFreq = fundamentalFreq * mode;
+      const modeWavelength = fundamentalWavelength / mode;
     
-    const frequencies = calculateFrequencies(selectedMode, boundaryType);
+      return {
+        fundamentalFreq,
+        modeFreq,
+        fundamentalWavelength,
+        modeWavelength
+      };
+    };
+
+    useEffect(() => {
+      const newFrequencies = calculateFrequencies(selectedMode, boundaryType, cavityLength, c);
+      setFrequencies(newFrequencies);
+    }, [selectedMode, boundaryType, cavityLength]);
+    
 
 
     const generateBoundaryWalls = () => (
@@ -137,10 +153,20 @@ const EnhancedCavity = () => {
     const visualScale = field === 'E' ? 1e5 : 1e8;
   
     for (let i = 0; i <= numPoints; i++) {
-      const x = (i / numPoints) * dimensions.width;
+      const x = (i / numPoints) * cavityLength;
+      //no generar puntos por fuera de la cavidad
+      if(x > cavityLength) break;
+
       const k = (mode * Math.PI) / dimensions.width;
       
       let spatialComponent;
+
+      if (boundaryType == 'closed-closed') {
+        spatialComponent = field === 'E' ? 
+          (x === 0 || cavityLength )? 0 : Math.sin(k * x) :
+          Math.cos(k * x);
+        
+      }
       switch(boundaryType) {
         case 'closed-closed':
           spatialComponent = field === 'E' ? 
@@ -341,6 +367,9 @@ return (
               viewBox={`0 0 ${cavityLength} ${dimensions.height}`}
               preserveAspectRatio="xMidYMid meet"
             >
+            <clipPath id="cavity-area">
+              <rect x="0" y="0" width={cavityLength} height={dimensions.height} />
+            </clipPath>
               <defs>
                 <marker
                   id="arrowhead-red"
@@ -430,13 +459,13 @@ return (
             {/* Frecuencias de Resonancia */}
             <div className="p-4 bg-gray-100 rounded-lg">
               <h3 className="font-semibold mb-2">Frecuencias de Resonancia:</h3>
-              <div className="space-y-2">
-                <p>• Frecuencia fundamental (f₁): {(fundamentalFreq/1e6).toFixed(2)} MHz</p>
-                <p>• Frecuencia del modo actual (f_{selectedMode}): {(modeFreq/1e6).toFixed(2)} MHz</p>
-                <p>• Longitud de onda fundamental (λ₁): {(2 * cavityLength).toFixed(2)} unidades</p>
-                <p>• Longitud de onda del modo actual (λ_{selectedMode}): {(2 * cavityLength/selectedMode).toFixed(2)} unidades</p>
-              </div>
-            </div>
+                <div className="space-y-2">
+                  <p>• Frecuencia fundamental (f₁): {(frequencies.fundamentalFreq/1e6).toFixed(2)} MHz</p>
+                  <p>• Frecuencia del modo actual (f_{selectedMode}): {(frequencies.modeFreq/1e6).toFixed(2)} MHz</p>
+                  <p>• Longitud de onda fundamental (λ₁): {frequencies.fundamentalWavelength.toFixed(2)} unidades</p>
+                  <p>• Longitud de onda del modo actual (λ_{selectedMode}): {frequencies.modeWavelength.toFixed(2)} unidades</p>
+                </div>
+           </div>  
 
             {/* Magnitudes de Campo */}
             <div className="p-4 bg-gray-100 rounded-lg">
