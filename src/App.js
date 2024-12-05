@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import WaveComparison from './Components/WaveComparison';
 import WaveHarmonics from './Components/WaveHarmonics';
 import EnhancedCavity from './Components/EnhancedCavity';
-//nuevos cambios
+
+
 const App = () => {
   const [activeTab, setActiveTab] = useState('comparison');
 
