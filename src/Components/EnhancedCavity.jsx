@@ -47,6 +47,16 @@ const EnhancedCavity = () => {
 
   // Handle window resize
   useEffect(() => {
+    /**
+     * handleResize es una función que ajusta las dimensiones de un componente
+     * en función del tamaño de la ventana del navegador.
+     * 
+     * La función establece las dimensiones del componente utilizando los valores
+     * mínimos entre 1200 píxeles y el ancho de la ventana menos 48 píxeles para el ancho,
+     * y entre 600 píxeles y el 60% de la altura de la ventana para la altura.
+     * 
+
+     */
     const handleResize = () => {
       setDimensions({
         width: Math.min(1200, window.innerWidth - 48),
@@ -162,31 +172,34 @@ const EnhancedCavity = () => {
       let spatialComponent;
       switch(boundaryType) {
         case 'closed-closed':
-          spatialComponent = field === 'E' ? 
-            // Forzar nodos en los extremos para campo E
-            (x === 0 || x === cavityLength) ? 0 : Math.sin(k * x) :
-            // Campo B tiene antinodos en los extremos
-            Math.cos(k * x);
-          break;
-          
+            spatialComponent = field === 'E' ? 
+                // Force nodes at boundaries for E field
+                (x === 0 || x === cavityLength) ? 0 : Math.sin(k * x) :
+                // B field has antinodes at boundaries
+                Math.cos(k * x);
+            break;
+            
         case 'open-open':
-          spatialComponent = field === 'E' ? 
-            // Campo E tiene antinodos en los extremos
-            Math.cos(k * x) :
-            // Campo B tiene nodos en los extremos
-            (x === 0 || x === cavityLength) ? 0 : Math.sin(k * x);
-          break;
-          
+            spatialComponent = field === 'E' ? 
+                // E field has antinodes at boundaries
+                Math.cos(k * x) :
+                // B field has nodes at boundaries
+                (x === 0 || x === cavityLength) ? 0 : Math.sin(k * x);
+            break;
+            
         case 'open-closed':
-          spatialComponent = field === 'E' ? 
-            // Antinodo en extremo abierto (x=0), nodo en extremo cerrado (x=L)
-            (x === cavityLength) ? 0 : Math.cos(k * x - Math.PI/2) :
-            // Nodo en extremo abierto, antinodo en extremo cerrado
-            (x === 0) ? 0 : Math.sin(k * x - Math.PI/2);
-          break;
+            // At x = 0 (open): E has antinode (cos), B has node (sin = 0)
+            // At x = L (closed): E has node (cos = 0), B has antinode (sin)
+            spatialComponent = field === 'E' ? 
+                (x === cavityLength) ? 0 : Math.cos(k * x) :
+                (x === 0) ? 0 : Math.sin(k * x);
+            break;
+    
         default:
-          spatialComponent = 0;
-          break;
+            // Handle unexpected boundary types
+            spatialComponent = 0;
+            console.warn(`Unexpected boundary type: ${boundaryType}`);
+            break;
       }
       
       const temporalComponent = Math.cos(2 * Math.PI * time);
@@ -194,6 +207,34 @@ const EnhancedCavity = () => {
                * spatialComponent * temporalComponent;
       
       points.push(`${x},${y}`);
+    }
+    
+    // Asegurar que el último punto está exactamente en el borde de la cavidad
+    if (!points.length || !points[points.length - 1].startsWith(`${cavityLength},`)) {
+      const lastX = cavityLength;
+      const k = (mode * Math.PI) / cavityLength;
+      let lastSpatialComponent;
+      
+      switch(boundaryType) {
+        case 'closed-closed':
+          lastSpatialComponent = field === 'E' ? 0 : Math.cos(k * lastX);
+          break;
+        case 'open-open':
+          lastSpatialComponent = field === 'E' ? Math.cos(k * lastX) : 0;
+          break;
+        case 'open-closed':
+          lastSpatialComponent = field === 'E' ? 0 : Math.sin(k * lastX);
+          break;
+        default:
+          lastSpatialComponent = 0;
+          console.warn(`Unexpected boundary type: ${boundaryType}`);
+      }
+      
+      const temporalComponent = Math.cos(2 * Math.PI * time);
+      const y = dimensions.height/2 + (amplitude * maxField * visualScale) 
+               * lastSpatialComponent * temporalComponent;
+      
+      points.push(`${lastX},${y}`);
     }
     
     return points.join(' ');
