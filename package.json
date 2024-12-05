@@ -2,7 +2,7 @@
   "name": "simultionfinalwaves",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http:/OtroMigala.github.io/FinalWavesSimulation2",
+  "homepage": "http:/OtroMigala.github.io/FinalWavesSimulation",
   "dependencies": {
     "@shadcn/ui": "^0.0.4",
     "@testing-library/jest-dom": "^5.17.0",
