@@ -17,21 +17,22 @@ const CardContent = ({ children }) => (
   <div className="p-4">{children}</div>
 );
 
+
 const EnhancedCavity = () => {
   // State
   const [time, setTime] = useState(0);
-  const [amplitude, setAmplitude] = useState(50);
+  const [amplitude, setAmplitude] = useState(1e-3); // V/m inicial
   const [selectedMode, setSelectedMode] = useState(1);
   const [cavityLength, setCavityLength] = useState(800);
   const [showEField, setShowEField] = useState(true);
   const [showBField, setShowBField] = useState(true);
+  const [eMaxField, setEMaxField] = useState(1e-3); // V/m
   const [showFieldVectors, setShowFieldVectors] = useState(true);
   const [dimensions, setDimensions] = useState({
     width: Math.min(1200, window.innerWidth - 48),
     height: Math.min(600, window.innerHeight * 0.6)
   });
   const [boundaryType, setBoundaryType] = useState('closed-closed');
-
   const [frequencies, setFrequencies] = useState({
     fundamentalFreq: 0,
     modeFreq: 0,
@@ -42,10 +43,32 @@ const EnhancedCavity = () => {
 
   // Physical constants
   const c = 3e8; // Speed of light in m/s
-  const E_MAX = 1e-3; // Maximum E-field in V/m (1 mV/m)
-  const B_MAX = E_MAX / c; // Maximum B-field in Tesla
+  const EPSILON_0 = 8.854e-12; // F/m
+  const MU_0 = 4 * Math.PI * 1e-7; // H/m
+
+    // Calculate frequencies
+  const fundamentalFreq = c / (2 * cavityLength);
+  const modeFreq = fundamentalFreq * selectedMode;
+
+  const bMaxField = eMaxField / c; // Tesla
+
+
+  const energyDensityE = 0.5 * EPSILON_0 * eMaxField * eMaxField;
+  const energyDensityB = 0.5 * (bMaxField * bMaxField) / MU_0;
+  const totalEnergyDensity = energyDensityE + energyDensityB;
+
+  // Función para formatear valores científicos
+  const formatScientific = (value, unit) => {
+      if (value === 0) return "0 " + unit;
+      const exponent = Math.floor(Math.log10(Math.abs(value)));
+      const mantissa = value / Math.pow(10, exponent);
+      return `${mantissa.toFixed(2)}×10^${exponent} ${unit}`;
+  };
+
+
 
   // Handle window resize
+  //establece las dimensiones del componente
   useEffect(() => {
     /**
      * handleResize es una función que ajusta las dimensiones de un componente
@@ -68,7 +91,19 @@ const EnhancedCavity = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Animation timer
+  /**Documentacion
+ * Hook de efecto que configura un temporizador para actualizar el estado del tiempo 
+ * en intervalos regulares.
+ * 
+ * Este efecto se ejecuta una vez al montar el componente y establece un temporizador 
+ * que incrementa el estado
+ * del tiempo (`time`) en 0.05 segundos cada 50 milisegundos. El valor del tiempo se
+ *  reinicia a 0 después de 
+ * completar un ciclo de 2π.
+ * 
+ * El temporizador se limpia automáticamente cuando el componente se desmonta para evitar
+ * fugas de memoria.
+ */
   useEffect(() => {
     const timer = setInterval(() => {
       setTime(t => (t + 0.05) % (2 * Math.PI));
@@ -76,22 +111,39 @@ const EnhancedCavity = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Calculate frequencies
-  const fundamentalFreq = c / (2 * cavityLength);
-  const modeFreq = fundamentalFreq * selectedMode;
-
-    // Nueva función para calcular frecuencias según tipo de frontera
-    const calculateFrequencies = (mode, boundaryType, cavityLength, c) => {
+  //función para calcular frecuencias según tipo de frontera
+  const calculateFrequencies = (mode, boundaryType, cavityLength, c) => {
       let fundamentalWavelength;
       switch(boundaryType) {
         case 'closed-closed':
         case 'open-open':
+          /**
+           * Cuando la cavidad tiene extremos 
+           * C-C o A-A, la longitud de onda fundamental es 2L
+           * esto se debe a que en estos casos, se necesita
+           * formar media onda estacionaria L/2 en la cavidad.
+           *  
+           * Permite que se cumplan las condiciones de 
+           * frontera en ambos extremos (nodos o antinodos)
+           * */ 
           fundamentalWavelength = 2 * cavityLength;
           break;
         case 'open-closed':
+          /**
+           * La longitud de onda fundamental debe ser cuatro veces
+           *  la longitud de la cavidad
+           * Esto forma un cuarto de onda (λ/4) dentro de la cavidad
+           * Necesario para satisfacer condiciones diferentes en cada extremo:
+           * Extremo abierto: requiere antinode (máximo)
+           * Extremo cerrado: requiere node (cero)
+           * Ejemplo: Si L = 1m, entonces λ₁ = 4m, formando un cuarto de onda
+           * 
+           * */ 
           fundamentalWavelength = 4 * cavityLength;
           break;
         default:
+          //Caso inesperado, para no forzar un error
+          //damos por sentado un modo A-A o C-C
           fundamentalWavelength = 2 * cavityLength;
       }
       
@@ -105,16 +157,35 @@ const EnhancedCavity = () => {
         fundamentalWavelength,
         modeWavelength
       };
-    };
+  };
 
-    useEffect(() => {
-      const newFrequencies = calculateFrequencies(selectedMode, boundaryType, cavityLength, c);
-      setFrequencies(newFrequencies);
-    }, [selectedMode, boundaryType, cavityLength]);
-    
+  //Documentacion
+  /**
+   * Hook de efecto que recalcula las frecuencias resonantes cuando cambian los parámetros de la cavidad
+   * @param {number} selectedMode - Número de modo armónico actual
+   * @param {string} boundaryType - Tipo de condiciones de frontera (abierta/cerrada)
+   * @param {number} cavityLength - Longitud de la cavidad
+   * @param {number} c - Velocidad de la luz
+   * 
+   * Este efecto se dispara cuando:
+   * - Cambia el modo seleccionado
+   * - Cambia el tipo de frontera
+   * - Cambia la longitud de la cavidad
+   * 
+   * Calcula las nuevas frecuencias resonantes basadas en estos parámetros
+   * y actualiza el estado de frecuencias usando setFrequencies
+   */
+  useEffect(() => {
+    const newFrequencies = calculateFrequencies(selectedMode, boundaryType, cavityLength, c);
+    setFrequencies(newFrequencies);
+  }, [selectedMode, boundaryType, cavityLength]);
+      
 
-
-    const generateBoundaryWalls = () => (
+  /**
+   * 
+   * @returns {JSX.Element} - Un componente SVG que representa las paredes de la cavidad resonante.
+   */
+  const generateBoundaryWalls = () => (
         <g>
           {/* Pared izquierda */}
           <line 
@@ -152,158 +223,236 @@ const EnhancedCavity = () => {
             </g>
           )}
         </g>
-      );
+  );
 
   // Generate harmonic points
   // Función modificada para generar armónicos según tipo de frontera
-  const generateHarmonicPoints = (field, mode) => {
-    const points = [];
-    const numPoints = 200;
-    const maxField = field === 'E' ? E_MAX : B_MAX;
-    const visualScale = field === 'E' ? 1e5 : 1e8;
+// Función mejorada
+const generateHarmonicPoints = (field, mode) => {
+  const points = [];
+  const numPoints = 200;
+  const maxField = field === 'E' ? eMaxField : bMaxField;
+  const visualScale = field === 'E' ? 1e7 : 1e10;
   
-    for (let i = 0; i <= numPoints; i++) {
-      // Asegurar que x está dentro de la cavidad
+  // Tolerancia para puntos extremos
+  const epsilon = 1e-10;
+
+  for (let i = 0; i <= numPoints; i++) {
       const x = Math.min((i / numPoints) * cavityLength, cavityLength);
-      
-      // Calcular k usando cavityLength en lugar de dimensions.width
       const k = (mode * Math.PI) / cavityLength;
       
       let spatialComponent;
       switch(boundaryType) {
-        case 'closed-closed':
-            spatialComponent = field === 'E' ? 
-                // Force nodes at boundaries for E field
-                (x === 0 || x === cavityLength) ? 0 : Math.sin(k * x) :
-                // B field has antinodes at boundaries
-                Math.cos(k * x);
-            break;
-            
-        case 'open-open':
-            spatialComponent = field === 'E' ? 
-                // E field has antinodes at boundaries
-                Math.cos(k * x) :
-                // B field has nodes at boundaries
-                (x === 0 || x === cavityLength) ? 0 : Math.sin(k * x);
-            break;
-            
-        case 'open-closed':
-            // At x = 0 (open): E has antinode (cos), B has node (sin = 0)
-            // At x = L (closed): E has node (cos = 0), B has antinode (sin)
-            spatialComponent = field === 'E' ? 
-                (x === cavityLength) ? 0 : Math.cos(k * x) :
-                (x === 0) ? 0 : Math.sin(k * x);
-            break;
-    
-        default:
-            // Handle unexpected boundary types
-            spatialComponent = 0;
-            console.warn(`Unexpected boundary type: ${boundaryType}`);
-            break;
+          case 'closed-closed':
+              if (field === 'E') {
+                  // Campo E debe tener nodos en ambos extremos
+                  spatialComponent = (x < epsilon || Math.abs(x - cavityLength) < epsilon) 
+                      ? 0  // Nodos forzados en los extremos
+                      : Math.sin(k * x);
+              } else {
+                  // Campo B debe tener antinodos en ambos extremos
+                  spatialComponent = Math.abs(x) < epsilon || Math.abs(x - cavityLength) < epsilon
+                      ? 1  // Antinodos forzados en los extremos
+                      : Math.cos(k * x);
+              }
+              break;
+              
+          case 'open-open':
+              if (field === 'E') {
+                  // Campo E debe tener antinodos en ambos extremos
+                  spatialComponent = Math.abs(x) < epsilon || Math.abs(x - cavityLength) < epsilon
+                      ? 1  // Antinodos forzados en los extremos
+                      : Math.cos(k * x);
+              } else {
+                  // Campo B debe tener nodos en ambos extremos
+                  spatialComponent = (x < epsilon || Math.abs(x - cavityLength) < epsilon)
+                      ? 0  // Nodos forzados en los extremos
+                      : Math.sin(k * x);
+              }
+              break;
+              
+          case 'open-closed':
+              if (field === 'E') {
+                  // Campo E: antinodo en extremo abierto (x=0), nodo en extremo cerrado (x=L)
+                  if (x < epsilon) {
+                      spatialComponent = 1;  // Antinodo en extremo abierto
+                  } else if (Math.abs(x - cavityLength) < epsilon) {
+                      spatialComponent = 0;  // Nodo en extremo cerrado
+                  } else {
+                      spatialComponent = Math.cos(k * x);
+                  }
+              } else {
+                  // Campo B: nodo en extremo abierto (x=0), antinodo en extremo cerrado (x=L)
+                  if (x < epsilon) {
+                      spatialComponent = 0;  // Nodo en extremo abierto
+                  } else if (Math.abs(x - cavityLength) < epsilon) {
+                      spatialComponent = 1;  // Antinodo en extremo cerrado
+                  } else {
+                      spatialComponent = Math.sin(k * x);
+                  }
+              }
+              break;
+  
+          default:
+              // Caso por defecto o inesperado
+              spatialComponent = 0;
+              console.warn(`Unexpected boundary type: ${boundaryType}`);
+              break;
       }
       
       const temporalComponent = Math.cos(2 * Math.PI * time);
-      const y = dimensions.height/2 + (amplitude * maxField * visualScale) 
-               * spatialComponent * temporalComponent;
+      const y = dimensions.height/2 + maxField * visualScale * 
+               spatialComponent * temporalComponent;
       
       points.push(`${x},${y}`);
-    }
-    
-    // Asegurar que el último punto está exactamente en el borde de la cavidad
-    if (!points.length || !points[points.length - 1].startsWith(`${cavityLength},`)) {
+  }
+  
+  if (!points.length || !points[points.length - 1].startsWith(`${cavityLength},`)) {
       const lastX = cavityLength;
-      const k = (mode * Math.PI) / cavityLength;
       let lastSpatialComponent;
       
       switch(boundaryType) {
-        case 'closed-closed':
-          lastSpatialComponent = field === 'E' ? 0 : Math.cos(k * lastX);
-          break;
-        case 'open-open':
-          lastSpatialComponent = field === 'E' ? Math.cos(k * lastX) : 0;
-          break;
-        case 'open-closed':
-          lastSpatialComponent = field === 'E' ? 0 : Math.sin(k * lastX);
-          break;
-        default:
-          lastSpatialComponent = 0;
-          console.warn(`Unexpected boundary type: ${boundaryType}`);
+          case 'closed-closed':
+              lastSpatialComponent = field === 'E' ? 0 : 1;
+              break;
+          case 'open-open':
+              lastSpatialComponent = field === 'E' ? 1 : 0;
+              break;
+          case 'open-closed':
+              lastSpatialComponent = field === 'E' ? 0 : 1;
+              break;
+          default:
+              lastSpatialComponent = 0;
       }
       
       const temporalComponent = Math.cos(2 * Math.PI * time);
-      const y = dimensions.height/2 + (amplitude * maxField * visualScale) 
-               * lastSpatialComponent * temporalComponent;
+      const y = dimensions.height/2 + maxField * visualScale * 
+               lastSpatialComponent * temporalComponent;
       
       points.push(`${lastX},${y}`);
-    }
-    
-    return points.join(' ');
+  }
+  
+  return points.join(' ');
 };
-
-  // Generate field vectors
+  // Generate field vectors, vectores de campo electrico
   const generateFieldVectors = (field, mode) => {
     const vectors = [];
     const numVectors = 20;
+    const epsilon = 1e-10;
     
     for(let i = 0; i < numVectors; i++) {
-      const x = (i / (numVectors-1)) * cavityLength;
-      const k = (mode * Math.PI) / cavityLength;
-      
-      const maxField = field === 'E' ? E_MAX : B_MAX;
-      const magnitude = field === 'E' ? 
-        Math.sin(k * x) * Math.cos(2 * Math.PI * time) :
-        Math.cos(k * x) * Math.cos(2 * Math.PI * time);
+        const x = (i / (numVectors-1)) * cavityLength;
+        const k = (mode * Math.PI) / cavityLength;
+        const maxField = field === 'E' ? eMaxField : bMaxField;
+        
+        let magnitude;
+        switch(boundaryType) {
+            case 'closed-closed':
+                if (field === 'E') {
+                    // Campo E: nodos en ambos extremos
+                    magnitude = (x < epsilon || Math.abs(x - cavityLength) < epsilon) 
+                        ? 0 
+                        : Math.sin(k * x);
+                } else {
+                    // Campo B: antinodos en ambos extremos
+                    magnitude = Math.abs(x) < epsilon || Math.abs(x - cavityLength) < epsilon
+                        ? 1
+                        : Math.cos(k * x);
+                }
+                break;
+                
+            case 'open-open':
+                if (field === 'E') {
+                    // Campo E: antinodos en ambos extremos
+                    magnitude = Math.abs(x) < epsilon || Math.abs(x - cavityLength) < epsilon
+                        ? 1
+                        : Math.cos(k * x);
+                } else {
+                    // Campo B: nodos en ambos extremos
+                    magnitude = (x < epsilon || Math.abs(x - cavityLength) < epsilon)
+                        ? 0
+                        : Math.sin(k * x);
+                }
+                break;
+                
+            case 'open-closed':
+                if (field === 'E') {
+                    // Campo E: antinodo en abierto, nodo en cerrado
+                    if (x < epsilon) {
+                        magnitude = 1; // Antinodo en extremo abierto
+                    } else if (Math.abs(x - cavityLength) < epsilon) {
+                        magnitude = 0; // Nodo en extremo cerrado
+                    } else {
+                        magnitude = Math.cos(k * x);
+                    }
+                } else {
+                    // Campo B: nodo en abierto, antinodo en cerrado
+                    if (x < epsilon) {
+                        magnitude = 0; // Nodo en extremo abierto
+                    } else if (Math.abs(x - cavityLength) < epsilon) {
+                        magnitude = 1; // Antinodo en extremo cerrado
+                    } else {
+                        magnitude = Math.sin(k * x);
+                    }
+                }
+                break;
+                
+            default:
+                magnitude = 0;
+                break;
+        }
 
-      const visualScale = field === 'E' ? 1e5 : 1e8;
-      const vectorLength = 20 * Math.abs(magnitude) * maxField * visualScale;
-      const direction = magnitude > 0 ? -1 : 1;
-      
-      if(field === 'E') {
-        vectors.push(
-          <g key={`${field}-${i}`}>
-            <line 
-              x1={x} y1={dimensions.height/2}
-              x2={x} y2={dimensions.height/2 + direction * vectorLength}
-              stroke="red"
-              strokeWidth="2"
-              markerEnd="url(#arrowhead-red)"
-            />
-          </g>
-        );
-      } else {
-        vectors.push(
-          <g key={`${field}-${i}`}>
-            <circle 
-              cx={x} cy={dimensions.height/2}
-              r={4}
-              fill="white"
-              stroke="blue"
-            />
-            {magnitude > 0 ? 
-              <circle cx={x} cy={dimensions.height/2} r={2} fill="blue"/> :
-              <g>
-                <line 
-                  x1={x-3} y1={dimensions.height/2-3}
-                  x2={x+3} y2={dimensions.height/2+3}
-                  stroke="blue"
-                  strokeWidth="2"
-                />
-                <line 
-                  x1={x-3} y1={dimensions.height/2+3}
-                  x2={x+3} y2={dimensions.height/2-3}
-                  stroke="blue"
-                  strokeWidth="2"
-                />
-              </g>
-            }
-          </g>
-        );
-      }
+        magnitude *= Math.cos(2 * Math.PI * time);
+        const visualScale = field === 'E' ? 1e7 : 1e10;
+        const vectorLength = 50 * Math.abs(magnitude) * maxField * visualScale;
+        const direction = magnitude > 0 ? -1 : 1;
+        
+        if(field === 'E') {
+            vectors.push(
+                <g key={`${field}-${i}`}>
+                    <line 
+                        x1={x} y1={dimensions.height/2}
+                        x2={x} y2={dimensions.height/2 + direction * vectorLength}
+                        stroke="red"
+                        strokeWidth="2"
+                        markerEnd="url(#arrowhead-red)"
+                    />
+                </g>
+            );
+        } else {
+            vectors.push(
+                <g key={`${field}-${i}`}>
+                    <circle 
+                        cx={x} cy={dimensions.height/2}
+                        r={4}
+                        fill="white"
+                        stroke="blue"
+                    />
+                    {magnitude > 0 ? 
+                        <circle cx={x} cy={dimensions.height/2} r={2} fill="blue"/> :
+                        <g>
+                            <line 
+                                x1={x-3} y1={dimensions.height/2-3}
+                                x2={x+3} y2={dimensions.height/2+3}
+                                stroke="blue"
+                                strokeWidth="2"
+                            />
+                            <line 
+                                x1={x-3} y1={dimensions.height/2+3}
+                                x2={x+3} y2={dimensions.height/2-3}
+                                stroke="blue"
+                                strokeWidth="2"
+                            />
+                        </g>
+                    }
+                </g>
+            );
+        }
     }
     return vectors;
-  };
+};
 
-  // Generate nodes and antinodes
+  // Generate nodes and antinodes for field
   const generateNodes = (field, mode) => {
     const nodes = [];
     for(let i = 0; i <= mode; i++) {
@@ -358,7 +507,11 @@ const EnhancedCavity = () => {
     }
     return nodes;
   };
-
+/**
+ * 
+ * @returns {JSX.Element} - Un componente SVG que representa una cuadrícula de la cavidad resonante.
+ * para hacer más visible la oscilación y los vectores de campo
+ */
   const generateGrid = () => (
     <g className="grid opacity-20">
         {/* Líneas verticales - aumentamos de 10 a 20 divisiones */}
@@ -388,7 +541,7 @@ const EnhancedCavity = () => {
             />
         ))}
     </g>
-);
+  );
 
 
 
@@ -479,7 +632,50 @@ return (
               <text x={20} y={dimensions.height-10} fill="blue">+x (campo B)</text>
             </svg>
           </div>
+               {/* Nuevo Control de Campo E Máximo */}
+          <div className="space-y-4 mt-6">
+            <div className="p-4 bg-gray-100 rounded-lg">
+              <h3 className="font-semibold mb-2">Control de Campos Máximos</h3>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Campo E máximo: {formatScientific(eMaxField, "V/m")}
+                </label>
+                <input
+                  type="range"
+                  value={Math.log10(eMaxField) + 6}
+                  onChange={(e) => {
+                    const newEMax = Math.pow(10, e.target.value - 6);
+                    setEMaxField(newEMax);
+                  }}
+                  min="-3"
+                  max="3"
+                  step="0.1"
+                  className="w-full"
+                />
+              </div>
 
+              <div className="mt-4 space-y-2">
+                <p>Campo B máximo: {formatScientific(bMaxField, "T")}</p>
+              </div>
+            </div>
+
+            {/* Densidades de Energía */}
+            <div className="p-4 bg-gray-100 rounded-lg">
+              <h3 className="font-semibold mb-2">Densidades de Energía</h3>
+              <div className="space-y-2">
+                <p>Energía eléctrica: {formatScientific(energyDensityE, "J/m³")}</p>
+                <p>Energía magnética: {formatScientific(energyDensityB, "J/m³")}</p>
+                <p>Energía total: {formatScientific(totalEnergyDensity, "J/m³")}</p>
+              </div>
+            </div>
+
+            {/* Vector de Poynting */}
+            <div className="p-4 bg-gray-100 rounded-lg">
+              <h3 className="font-semibold mb-2">Vector de Poynting</h3>
+              <p>Magnitud: {formatScientific(eMaxField * bMaxField / MU_0, "W/m²")}</p>
+              <p>Presión de radiación: {formatScientific(eMaxField * bMaxField / (MU_0 * c), "N/m²")}</p>
+            </div>
+          </div>
           <div className="w-full max-w-3xl space-y-4 mt-6">
             {/* Selector de Tipo de Frontera */}
             <div>
@@ -512,8 +708,8 @@ return (
             <div className="p-4 bg-gray-100 rounded-lg">
               <h3 className="font-semibold mb-2">Magnitudes de Campo:</h3>
               <div className="space-y-2">
-                <p>• Campo E máximo: {(E_MAX * 1e3).toFixed(2)} mV/m</p>
-                <p>• Campo B máximo: {(B_MAX * 1e9).toFixed(2)} nT</p>
+                <p>• Campo E máximo: {(eMaxField * 1e3).toFixed(2)} mV/m</p>
+                <p>• Campo B máximo: {(bMaxField  * 1e9).toFixed(2)} nT</p>
                 <p>• Relación E/B = c = {c.toExponential(2)} m/s</p>
               </div>
             </div>
@@ -551,19 +747,27 @@ return (
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Amplitud: {amplitude}% de {(E_MAX * 1e3).toFixed(2)} mV/m
-                </label>
-                <input
-                  type="range"
-                  value={amplitude}
-                  onChange={(e) => setAmplitude(Number(e.target.value))}
-                  min="1"
-                  max="100"
-                  step="1"
-                  className="w-full"
-                />
+              <label className="block text-sm font-medium mb-1">
+                Amplitud: {formatScientific(amplitude, "V/m")}
+              </label>
+              <input
+                type="range"
+                value={Math.log10(amplitude) + 6}
+                onChange={(e) => {
+                  const newAmp = Math.pow(10, e.target.value - 6);
+                  setAmplitude(newAmp);
+                }}
+                min="-6"  // 1 µV/m
+                max="3"   // 1 kV/m
+                step="0.1"
+                className="w-full"
+              />
+              <div className="text-sm text-gray-600 mt-1">
+                {/* Información adicional útil */}
+                <p>Porcentaje del campo máximo: {((amplitude/eMaxField) * 100).toFixed(1)}%</p>
+                <p>Amplitud del campo B: {formatScientific(amplitude/c, "T")}</p>
               </div>
+            </div>
 
               <div className="flex flex-wrap gap-4">
                 <label className="flex items-center">

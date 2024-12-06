@@ -3,6 +3,7 @@ import WaveComparison from './Components/WaveComparison';
 import WaveHarmonics from './Components/WaveHarmonics';
 import EnhancedCavity from './Components/EnhancedCavity';
 
+
 const App = () => {
   const [activeTab, setActiveTab] = useState('comparison');
 
