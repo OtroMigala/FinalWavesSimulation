@@ -629,7 +629,7 @@ return (
               {/* Etiquetas de Dirección */}
               <text x={cavityLength-40} y={dimensions.height/2-20} fill="gray">+z (propagación)</text>
               <text x={20} y={20} fill="red">+y (campo E)</text>
-              <text x={20} y={dimensions.height-10} fill="blue">+x (campo B)</text>
+              <text x={20} y={dimensions.height-10} fill="blue">-x (campo B)</text>
             </svg>
           </div>
                {/* Nuevo Control de Campo E Máximo */}

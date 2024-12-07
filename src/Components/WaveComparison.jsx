@@ -124,16 +124,7 @@ const WaveComparison = () => {
                 </div>
               </div>
   
-              {/* Historial Temporal */}
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Historial Temporal</h3>
-                <div className="border-2 border-gray-200 rounded-lg p-3 bg-white">
-                  <svg width={width} height={graphHeight} className="w-full">
-                    <line x1="0" y1={graphHeight/2} x2={width} y2={graphHeight/2} stroke="gray" strokeDasharray="4"/>
-                    <polyline points={timeHistory} fill="none" stroke="purple" strokeWidth="2"/>
-                  </svg>
-                </div>
-              </div>
+
             </CardContent>
           </Card>
         </div>
@@ -277,10 +268,7 @@ const WaveComparison = () => {
                   <span className="text-indigo-500">•</span>
                   La energía de la onda es proporcional a A²ω²
                 </p>
-                <p className="flex items-center justify-center gap-2">
-                  <span className="text-indigo-500">•</span>
-                  La velocidad de fase viene dada por v = λf
-                </p>
+
                 <p className="flex items-center justify-center gap-2">
                   <span className="text-indigo-500">•</span>
                   Número de onda: k = 2π/λ
