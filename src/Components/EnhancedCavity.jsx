@@ -239,7 +239,7 @@ const generateHarmonicPoints = (field, mode) => {
 
   for (let i = 0; i <= numPoints; i++) {
       const x = Math.min((i / numPoints) * cavityLength, cavityLength);
-      const k = (mode * Math.PI) / cavityLength;
+      const k = ((2*mode)*1 * Math.PI) / 2*cavityLength;
       
       let spatialComponent;
       switch(boundaryType) {
@@ -659,22 +659,7 @@ return (
               </div>
             </div>
 
-            {/* Densidades de Energía */}
-            <div className="p-4 bg-gray-100 rounded-lg">
-              <h3 className="font-semibold mb-2">Densidades de Energía</h3>
-              <div className="space-y-2">
-                <p>Energía eléctrica: {formatScientific(energyDensityE, "J/m³")}</p>
-                <p>Energía magnética: {formatScientific(energyDensityB, "J/m³")}</p>
-                <p>Energía total: {formatScientific(totalEnergyDensity, "J/m³")}</p>
-              </div>
-            </div>
 
-            {/* Vector de Poynting */}
-            <div className="p-4 bg-gray-100 rounded-lg">
-              <h3 className="font-semibold mb-2">Vector de Poynting</h3>
-              <p>Magnitud: {formatScientific(eMaxField * bMaxField / MU_0, "W/m²")}</p>
-              <p>Presión de radiación: {formatScientific(eMaxField * bMaxField / (MU_0 * c), "N/m²")}</p>
-            </div>
           </div>
           <div className="w-full max-w-3xl space-y-4 mt-6">
             {/* Selector de Tipo de Frontera */}
@@ -800,37 +785,7 @@ return (
               </div>
             </div>
 
-            {/* Condiciones de Frontera */}
-            <div className="p-4 bg-gray-100 rounded-lg">
-              <h3 className="font-semibold mb-2">Condiciones de Contorno:</h3>
-              <div className="space-y-2">
-                <p>• Extremo Cerrado (Conductor):</p>
-                <p className="ml-4">- Campo E perpendicular (nodo)</p>
-                <p className="ml-4">- Campo B paralelo (antinodo)</p>
-                <p>• Extremo Abierto:</p>
-                <p className="ml-4">- Campo E paralelo (antinodo)</p>
-                <p className="ml-4">- Campo B perpendicular (nodo)</p>
-              </div>
-            </div>
 
-            {/* Información de Fase */}
-            <div className="p-4 bg-gray-100 rounded-lg">
-              <h3 className="font-semibold mb-2">Relación de Fase:</h3>
-              <div className="space-y-2">
-                <p>• Los campos E y B:</p>
-                <p className="ml-4">- Oscilan en fase temporal</p>
-                <p className="ml-4">- Mantienen desfase espacial de 90°</p>
-              </div>
-            </div>
-
-            {/* Explicación */}
-            <div className="text-sm text-gray-600 space-y-2">
-              <p>• Las flechas rojas verticales representan el campo eléctrico (E)</p>
-              <p>• Los puntos (⋅) y cruces (×) azules representan el campo magnético (B) saliendo/entrando del plano</p>
-              <p>• Los campos E y B están siempre desfasados 90° espacialmente</p>
-              <p>• La longitud de los vectores indica la magnitud del campo en cada punto</p>
-              <p>• Note cómo la dirección de los campos se invierte en cada nodo</p>
-            </div>
           </div>
         </CardContent>
       </Card>

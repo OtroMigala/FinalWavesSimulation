@@ -3,6 +3,7 @@ import WaveComparison from './Components/WaveComparison';
 import WaveHarmonics from './Components/WaveHarmonics';
 import EnhancedCavity from './Components/EnhancedCavity';
 import NewComponent from './Components/WaveControls';
+import WaveControls from './Components/WaveControls';
 
 
 const App = () => {
@@ -10,7 +11,7 @@ const App = () => {
 
   const tabs = [
     { id: 'comparison', label: 'Comparación de Ondas', component: <WaveComparison /> },
-    { id: 'harmonics', label: 'Armónicos', component: <WaveHarmonics /> },
+    { id: 'harmonics', label: 'Ecuaciones', component: <WaveControls /> },
     { id: 'cavity', label: 'Cavidad Resonante', component: <EnhancedCavity /> }
   ];
 

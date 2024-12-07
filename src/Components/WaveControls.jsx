@@ -102,10 +102,10 @@ const WaveControls = () => {
   };
 
   return (
-    <div>
-      <div className="mt-4">
+    <div className="container mx-auto p-4">
+      <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
         <h3 className="text-lg font-semibold mb-2">Parámetros Iniciales</h3>
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-center gap-2">
             <label htmlFor="E0" className="block font-semibold w-1/3">
               Amplitud (<span className="italic">E<sub>0</sub></span>):
@@ -157,88 +157,67 @@ const WaveControls = () => {
             />
           </div>
         </div>
-      </div>
 
-      <div className="mt-4">
-        <h3 className="text-lg font-semibold mb-2">Condiciones de Frontera</h3>
-        <div className="flex items-center gap-4">
-          <label>
-            <input
-              type="radio"
-              name="boundary"
-              value="cerrada-cerrada"
-              checked={boundaryCondition === "cerrada-cerrada"}
-              onChange={handleBoundaryChange}
-            />
-            Cerrada-Cerrada
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="boundary"
-              value="abierta-abierta"
-              checked={boundaryCondition === "abierta-abierta"}
-              onChange={handleBoundaryChange}
-            />
-            Abierta-Abierta
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="boundary"
-              value="abierta-cerrada"
-              checked={boundaryCondition === "abierta-cerrada"}
-              onChange={handleBoundaryChange}
-            />
-            Abierta-Cerrada
-          </label>
+        <div className="mt-4">
+          <h3 className="text-lg font-semibold mb-2">Condiciones de Frontera</h3>
+          <div className="flex items-center gap-4">
+            <label>
+              <input
+                type="radio"
+                name="boundary"
+                value="cerrada-cerrada"
+                checked={boundaryCondition === "cerrada-cerrada"}
+                onChange={handleBoundaryChange}
+              />
+              Cerrada-Cerrada
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="boundary"
+                value="abierta-abierta"
+                checked={boundaryCondition === "abierta-abierta"}
+                onChange={handleBoundaryChange}
+              />
+              Abierta-Abierta
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="boundary"
+                value="abierta-cerrada"
+                checked={boundaryCondition === "abierta-cerrada"}
+                onChange={handleBoundaryChange}
+              />
+              Abierta-Cerrada
+            </label>
+          </div>
         </div>
-      </div>
 
-      <div className="mt-4">
-        <h3 className="text-lg font-semibold mb-2">Datos</h3>
-        <div className="space-y-4">
-          {harmonics.map(({ n, k, w, lambda, E0, B0 }) => (
-            <div key={n} className="text-sm font-mono">
-              <p>n = {n}</p>
-              <p>λ = {lambda.toFixed(2)}m</p>
-              <p
-                dangerouslySetInnerHTML={{
-                  __html: renderEquation(`k = ${k.toFixed(2)} \\text{ m}^{-1}`),
-                }}
-              />
-              <p>w = {w.toFixed(2)}rad/s</p>
-              <hr />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-4">
-        <h3 className="text-lg font-semibold mb-2">Ecuaciones</h3>
-        <div className="space-y-4">
-          {harmonics.map(({ n, k, w, E0, B0 }) => (
-            <div key={n}>
-                <h4 className="font-semibold text-blue-600">
-          Modo n = {n}. Armónico N° {n}
-        </h4>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: renderEquation(
-                    equations[boundaryCondition].E(k, w, E0)
-                  ),
-                }}
-              />
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: renderEquation(
-                    equations[boundaryCondition].B(k, w, B0)
-                  ),
-                }}
-              />
-              <hr />
-            </div>
-          ))}
+        <div className="mt-4">
+          <h3 className="text-lg font-semibold mb-2">Datos</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {harmonics.map(({ n, k, w, lambda, E0, B0 }) => (
+              <div key={n} className="text-sm font-mono bg-gray-50 p-4 rounded-lg shadow-sm">
+                <p>n = {n}</p>
+                <p>λ = {lambda.toFixed(2)}m</p>
+                <p
+                  dangerouslySetInnerHTML={{
+                    __html: renderEquation(
+                      equations[boundaryCondition].E(k, w, E0)
+                    ),
+                  }}
+                />
+                <p
+                  dangerouslySetInnerHTML={{
+                    __html: renderEquation(
+                      equations[boundaryCondition].B(k, w, B0)
+                    ),
+                  }}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
