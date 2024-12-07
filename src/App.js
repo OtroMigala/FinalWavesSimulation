@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
-import WaveComparison from './Components/WaveComparison';
-import WaveHarmonics from './Components/WaveHarmonics';
-import EnhancedCavity from './Components/EnhancedCavity';
-import NewComponent from './Components/WaveControls';
-import WaveControls from './Components/WaveControls';
-
+import React, { useState } from "react";
+import WaveComparison from "./Components/WaveComparison";
+import WaveHarmonics from "./Components/WaveHarmonics";
+import EnhancedCavity from "./Components/EnhancedCavity";
+import NewComponent from "./Components/WaveControls";
+import WaveControls from "./Components/WaveControls";
 
 const App = () => {
-  const [activeTab, setActiveTab] = useState('comparison');
+  const [activeTab, setActiveTab] = useState("comparison");
 
   const tabs = [
-    { id: 'comparison', label: 'Comparación de Ondas', component: <WaveComparison /> },
-    { id: 'harmonics', label: 'Ecuaciones', component: <WaveControls /> },
-    { id: 'cavity', label: 'Cavidad Resonante', component: <EnhancedCavity /> }
+    {
+      id: "comparison",
+      label: "Comparación de Ondas",
+      component: <WaveComparison />,
+    },
+    { id: "harmonics", label: "Ecuaciones", component: <WaveControls /> },
+    { id: "cavity", label: "Cavidad Resonante", component: <EnhancedCavity /> },
   ];
 
   return (
@@ -30,7 +33,9 @@ const App = () => {
       <main className="container mx-auto px-4 py-6">
         {/* Tabs Navigation - Centrado */}
         <div className="max-w-3xl mx-auto mb-6">
+          {/*
           <div className="flex justify-center gap-2 bg-white p-2 rounded-lg shadow-sm">
+            
             {tabs.map(tab => (
               <button
                 key={tab.id}
@@ -47,24 +52,22 @@ const App = () => {
               </button>
             ))}
           </div>
+          */}
+          <WaveControls />
         </div>
 
-        {/* Component Container - Centrado */}
+        {/* Component Container - Centrado 
         <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-sm p-6">
-          {tabs.find(tab => tab.id === activeTab)?.component}
+          {tabs.find((tab) => tab.id === activeTab)?.component}
         </div>
 
-        {/* Mostrar Datos */}
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">
             Datos
           </h2>
-          <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-sm p-6">
-            
-          </div>
+          <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-sm p-6"></div>
         </div>
-
-
+        */}
       </main>
 
       {/* Footer - Centrado */}
@@ -72,8 +75,14 @@ const App = () => {
         <div className="container mx-auto px-4 py-6 text-center">
           <div className="text-gray-600 text-sm">
             <p className="mb-2">© 2024 Simulación de Ondas Electromagnéticas</p>
-            <p>Desarrollado para visualización y análisis de fenómenos ondulatorios</p>
-            <p>Desarrollado por: Alejandro Cardenas, Paulo C. Chamorro, Jesus G. Parra y Elkin A. Morillo</p>
+            <p>
+              Desarrollado para visualización y análisis de fenómenos
+              ondulatorios
+            </p>
+            <p>
+              Desarrollado por: Alejandro Cardenas, Paulo C. Chamorro, Jesus G.
+              Parra y Elkin A. Morillo
+            </p>
           </div>
         </div>
       </footer>
