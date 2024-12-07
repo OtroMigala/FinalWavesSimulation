@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import WaveControls from "./WaveControls";
 
 // Componentes de la tarjeta
 const Card = ({ children, className = "" }) => (
-  <div className={`bg-white rounded-lg shadow-md flex flex-col items-center w-full ${className}`}>
+  <div
+    className={`bg-white rounded-lg shadow-md flex flex-col items-center w-full ${className}`}
+  >
     {children}
   </div>
 );
@@ -15,19 +17,14 @@ const CardHeader = ({ children }) => (
 );
 
 const CardTitle = ({ children }) => (
-  <h2 className="text-xl font-semibold text-center">
-    {children}
-  </h2>
+  <h2 className="text-xl font-semibold text-center">{children}</h2>
 );
 
 const CardContent = ({ children }) => (
-  <div className="w-full p-4 flex flex-col items-center">
-    {children}
-  </div>
+  <div className="w-full p-4 flex flex-col items-center">{children}</div>
 );
 
 const WaveComparison = () => {
-
   // Estados para controlar las variables
   const [time, setTime] = useState(0);
   const [amplitude, setAmplitude] = useState(50);
@@ -36,7 +33,7 @@ const WaveComparison = () => {
   const [showEField, setShowEField] = useState(true);
   const [showBField, setShowBField] = useState(true);
   const [observationPoint, setObservationPoint] = useState(300);
-  const [boundaryCondition, setBoundaryCondition] = useState('open-open'); // Nuevo estado para condiciones de frontera
+  const [boundaryCondition, setBoundaryCondition] = useState("open-open"); // Nuevo estado para condiciones de frontera
 
   // Dimensiones para cada visualización
   const width = 800;
@@ -45,13 +42,13 @@ const WaveComparison = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTime(t => (t + 0.05) % (2 * Math.PI));
+      setTime((t) => (t + 0.05) % (2 * Math.PI));
     }, 50);
     return () => clearInterval(timer);
   }, []);
 
   // Cálculos físicos en tiempo real
-  const k = 2 * Math.PI / wavelength; // Número de onda
+  const k = (2 * Math.PI) / wavelength; // Número de onda
   const omega = 2 * Math.PI * frequency; // Frecuencia angular
   const period = 1 / frequency; // Período
   const phaseVelocity = wavelength * frequency; // Velocidad de fase
@@ -61,29 +58,31 @@ const WaveComparison = () => {
   const generateStandingWavePoints = (field) => {
     return Array.from({ length: 100 }, (_, i) => {
       const x = (i / 100) * width;
-      const position = field === 'E' ? Math.sin(k * x) : Math.cos(k * x);
+      const position = field === "E" ? Math.sin(k * x) : Math.cos(k * x);
       const y = height / 2 + amplitude * position * Math.cos(omega * time);
       return `${x},${y}`;
-    }).join(' ');
+    }).join(" ");
   };
 
   // Función para generar puntos de onda viajera
   const generateTravelingWavePoints = (field) => {
     return Array.from({ length: 100 }, (_, i) => {
       const x = (i / 100) * width;
-      const phase = field === 'E' ? 0 : Math.PI / 2;
+      const phase = field === "E" ? 0 : Math.PI / 2;
       const y = height / 2 + amplitude * Math.sin(k * x - omega * time + phase);
       return `${x},${y}`;
-    }).join(' ');
+    }).join(" ");
   };
 
   // Historial de oscilación del punto de observación
   const timeHistory = Array.from({ length: 50 }, (_, i) => {
-    const pastTime = time - (i * 0.1);
-    const x = width - (i * 5);
-    const y = graphHeight / 2 + amplitude / 2 * Math.sin(k * observationPoint - omega * pastTime);
+    const pastTime = time - i * 0.1;
+    const x = width - i * 5;
+    const y =
+      graphHeight / 2 +
+      (amplitude / 2) * Math.sin(k * observationPoint - omega * pastTime);
     return `${x},${y}`;
-  }).join(' ');
+  }).join(" ");
 
   return (
     <div className="container mx-auto flex flex-col items-center w-full">
@@ -97,15 +96,34 @@ const WaveComparison = () => {
             <CardContent className="space-y-8">
               {/* Onda Estacionaria */}
               <div>
-                <h3 className="text-lg font-semibold mb-3">Onda Estacionaria</h3>
+                <h3 className="text-lg font-semibold mb-3">
+                  Onda Estacionaria
+                </h3>
                 <div className="border-2 border-gray-200 rounded-lg p-3 bg-white">
                   <svg width={width} height={height} className="w-full">
-                    <line x1="0" y1={height / 2} x2={width} y2={height / 2} stroke="gray" strokeDasharray="4" />
+                    <line
+                      x1="0"
+                      y1={height / 2}
+                      x2={width}
+                      y2={height / 2}
+                      stroke="gray"
+                      strokeDasharray="4"
+                    />
                     {showEField && (
-                      <polyline points={generateStandingWavePoints('E')} fill="none" stroke="red" strokeWidth="2" />
+                      <polyline
+                        points={generateStandingWavePoints("E")}
+                        fill="none"
+                        stroke="red"
+                        strokeWidth="2"
+                      />
                     )}
                     {showBField && (
-                      <polyline points={generateStandingWavePoints('B')} fill="none" stroke="blue" strokeWidth="2" />
+                      <polyline
+                        points={generateStandingWavePoints("B")}
+                        fill="none"
+                        stroke="blue"
+                        strokeWidth="2"
+                      />
                     )}
                   </svg>
                 </div>
@@ -116,26 +134,55 @@ const WaveComparison = () => {
                 <h3 className="text-lg font-semibold mb-3">Onda Viajera</h3>
                 <div className="border-2 border-gray-200 rounded-lg p-3 bg-white">
                   <svg width={width} height={height} className="w-full">
-                    <line x1="0" y1={height / 2} x2={width} y2={height / 2} stroke="gray" strokeDasharray="4" />
+                    <line
+                      x1="0"
+                      y1={height / 2}
+                      x2={width}
+                      y2={height / 2}
+                      stroke="gray"
+                      strokeDasharray="4"
+                    />
                     {showEField && (
-                      <polyline points={generateTravelingWavePoints('E')} fill="none" stroke="red" strokeWidth="2" />
+                      <polyline
+                        points={generateTravelingWavePoints("E")}
+                        fill="none"
+                        stroke="red"
+                        strokeWidth="2"
+                      />
                     )}
                     {showBField && (
-                      <polyline points={generateTravelingWavePoints('B')} fill="none" stroke="blue" strokeWidth="2" />
+                      <polyline
+                        points={generateTravelingWavePoints("B")}
+                        fill="none"
+                        stroke="blue"
+                        strokeWidth="2"
+                      />
                     )}
                   </svg>
                 </div>
               </div>
-  
-
 
               {/* Historial Temporal */}
               <div>
-                <h3 className="text-lg font-semibold mb-3">Historial Temporal</h3>
+                <h3 className="text-lg font-semibold mb-3">
+                  Historial Temporal
+                </h3>
                 <div className="border-2 border-gray-200 rounded-lg p-3 bg-white">
                   <svg width={width} height={graphHeight} className="w-full">
-                    <line x1="0" y1={graphHeight / 2} x2={width} y2={graphHeight / 2} stroke="gray" strokeDasharray="4" />
-                    <polyline points={timeHistory} fill="none" stroke="purple" strokeWidth="2" />
+                    <line
+                      x1="0"
+                      y1={graphHeight / 2}
+                      x2={width}
+                      y2={graphHeight / 2}
+                      stroke="gray"
+                      strokeDasharray="4"
+                    />
+                    <polyline
+                      points={timeHistory}
+                      fill="none"
+                      stroke="purple"
+                      strokeWidth="2"
+                    />
                   </svg>
                 </div>
               </div>
@@ -186,14 +233,16 @@ const WaveComparison = () => {
               <div className="space-y-6">
                 {/* Condiciones de frontera */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">Condiciones de Frontera:</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Condiciones de Frontera:
+                  </label>
                   <div className="flex gap-4">
                     <label className="cursor-pointer">
                       <input
                         type="radio"
                         name="boundaryCondition"
                         value="open-open"
-                        checked={boundaryCondition === 'open-open'}
+                        checked={boundaryCondition === "open-open"}
                         onChange={(e) => setBoundaryCondition(e.target.value)}
                       />
                       Abierta-Abierta
@@ -203,7 +252,7 @@ const WaveComparison = () => {
                         type="radio"
                         name="boundaryCondition"
                         value="closed-closed"
-                        checked={boundaryCondition === 'closed-closed'}
+                        checked={boundaryCondition === "closed-closed"}
                         onChange={(e) => setBoundaryCondition(e.target.value)}
                       />
                       Cerrada-Cerrada
@@ -213,7 +262,7 @@ const WaveComparison = () => {
                         type="radio"
                         name="boundaryCondition"
                         value="open-closed"
-                        checked={boundaryCondition === 'open-closed'}
+                        checked={boundaryCondition === "open-closed"}
                         onChange={(e) => setBoundaryCondition(e.target.value)}
                       />
                       Abierta-Cerrada
@@ -287,12 +336,11 @@ const WaveComparison = () => {
                   </div>
                 </div>
               </div>
-
             </CardContent>
           </Card>
-  
+
           {/* Panel de Información */}
-                    <Card className="w-full flex flex-col items-center">
+          <Card className="w-full flex flex-col items-center">
             <CardHeader className="w-full text-center bg-gradient-to-r from-indigo-600 to-indigo-800">
               <CardTitle className="text-white">Información</CardTitle>
             </CardHeader>
