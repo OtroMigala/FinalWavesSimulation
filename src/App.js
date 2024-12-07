@@ -54,16 +54,6 @@ const App = () => {
           {tabs.find(tab => tab.id === activeTab)?.component}
         </div>
 
-        {/* Mostrar Datos */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">
-            Datos
-          </h2>
-          <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-sm p-6">
-            
-          </div>
-        </div>
-
 
       </main>
 
