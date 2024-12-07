@@ -73,6 +73,7 @@ const App = () => {
           <div className="text-gray-600 text-sm">
             <p className="mb-2">© 2024 Simulación de Ondas Electromagnéticas</p>
             <p>Desarrollado para visualización y análisis de fenómenos ondulatorios</p>
+            <p>Desarrollado por: Alejandro Cardenas, Paulo C. Chamorro, Jesus G. Parra y Elkin A. Morillo</p>
           </div>
         </div>
       </footer>

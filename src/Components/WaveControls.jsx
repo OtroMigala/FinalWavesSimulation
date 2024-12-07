@@ -28,19 +28,21 @@ const WaveControls = () => {
         `B(x,t) = ${B0} · Sin(${k.toFixed(2)}x) · Cos(${w.toFixed(2)}t)`,
     },
   };
+  
 
   const [inputs, setInputs] = useState({
     L: "", // cadena vacía en lugar de 1
     v: "", // cadena vacía en lugar de 1
     amplitude: "E",
     nodes: "", // cadena vacía en lugar de 1
+    E0: ""
   });
 
   const [harmonics, setHarmonics] = useState([]);
 
   // Calcular constantes dinámicas para cada nodo
   const calculateHarmonics = () => {
-    const { L, v, nodes } = inputs;
+    const { L, v, nodes, E0 } = inputs;
     const newHarmonics = [];
 
     for (let n = 1; n <= nodes; n++) {
@@ -53,7 +55,7 @@ const WaveControls = () => {
           k = (Math.PI * n) / L;
           break;
         case "abierta-cerrada":
-          k = ((2 * n - 1) * Math.PI) / L;
+          k = (((2 * n) - 1) * Math.PI) / (2*L);
           break;
         default:
           k = 0;
@@ -64,7 +66,7 @@ const WaveControls = () => {
 
       // Suponemos que E0 y B0 son valores relacionados con la amplitud
       // Usamos una aproximación para E0 y B0
-      const E0 = 1; // Amplitud para E (puede ajustarse según el input)
+      // Amplitud para E (puede ajustarse según el input)
       const B0 = E0 / v; // Relación simple para B0, que podría cambiar dependiendo del modelo
 
       newHarmonics.push({ n, k, w, lambda, E0, B0 });
