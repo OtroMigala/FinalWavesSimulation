@@ -48,6 +48,7 @@ const WaveControls = () => {
     const newHarmonics = [];
 
     for (let n = 1; n <= nodes; n++) {
+      
       // Calcular el valor de k, w y lambda según la condición de frontera
       switch (boundaryCondition) {
         case "cerrada-cerrada":
@@ -67,7 +68,7 @@ const WaveControls = () => {
       // Suponemos que E0 y B0 son valores relacionados con la amplitud
       // Usamos una aproximación para E0 y B0
       // Amplitud para E (puede ajustarse según el input)
-      const B0 = E0 / v; // Relación simple para B0, que podría cambiar dependiendo del modelo
+      B0 = E0 / v; // Relación simple para B0, que podría cambiar dependiendo del modelo
 
       newHarmonics.push({ n, k, w, lambda, E0, B0 });
     }
@@ -103,25 +104,25 @@ const WaveControls = () => {
     });
   };
 
-  //funciones que devuelve
-  {
-    harmonics.map(({ n, k, w, lambda, E0, B0 }) => {
-      console.log(
-        `E: ${equations[boundaryCondition].E(k, w, E0)},
-B: ${equations[boundaryCondition].B(k, w, E0)} `
-      );
-    });
-  }
-
+    //funciones que devuelve
+    {
+      harmonics.map(({ n, k, w, lambda, E0, B0 }) => {
+        console.log(
+          `E: ${equations[boundaryCondition].E(k, w, E0)},
+  B: ${equations[boundaryCondition].B(k, w, E0)} `
+        );
+      });
+    }
+  
   return (
     <div className="container mx-auto p-4">
       <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
-        <Graph3d />
+      <Graph3d />
         <h3 className="text-lg font-semibold mb-2">Parámetros Iniciales</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-center gap-2">
             <label htmlFor="E0" className="block font-semibold w-1/3">
-              Amplitud (
+            Amplitud (
               <span className="italic">
                 E<sub>0</sub>
               </span>
@@ -176,9 +177,7 @@ B: ${equations[boundaryCondition].B(k, w, E0)} `
         </div>
 
         <div className="mt-4">
-          <h3 className="text-lg font-semibold mb-2">
-            Condiciones de Frontera
-          </h3>
+          <h3 className="text-lg font-semibold mb-2">Condiciones de Frontera</h3>
           <div className="flex items-center gap-4">
             <label>
               <input
@@ -217,10 +216,7 @@ B: ${equations[boundaryCondition].B(k, w, E0)} `
           <h3 className="text-lg font-semibold mb-2">Datos</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {harmonics.map(({ n, k, w, lambda, E0, B0 }) => (
-              <div
-                key={n}
-                className="text-sm font-mono bg-gray-50 p-4 rounded-lg shadow-sm"
-              >
+              <div key={n} className="text-sm font-mono bg-gray-50 p-4 rounded-lg shadow-sm">
                 <p>n = {n}</p>
                 <p>λ = {lambda.toFixed(2)}m</p>
                 <p
