@@ -4,43 +4,38 @@ import "katex/dist/katex.min.css"; // Importa los estilos de KaTeX
 
 const WaveControls = () => {
   const [boundaryCondition, setBoundaryCondition] = useState("cerrada-cerrada");
-  const [constants, setConstants] = useState({
-    E0: "",
-    B0: "",
-  });
 
   const equations = {
     "cerrada-cerrada": {
       factor: 2, // Factor multiplicativo para esta condición
-      E: (k, w) =>
-        `E(x,t) = ${2 * constants.E0} · Sin(${k.toFixed(2)}x) · Cos(${w.toFixed(2)}t)`,
-      B: (k, w) =>
-        `B(x,t) = ${2 * constants.B0} · Sin(${w.toFixed(2)}t) · Cos(${k.toFixed(2)}x)`,
+      E: (k, w, E0) =>
+        `E(x,t) = ${2 * E0} · Sin(${k.toFixed(2)}x) · Cos(${w.toFixed(2)}t)`,
+      B: (k, w, B0) =>
+        `B(x,t) = ${2 * B0} · Sin(${w.toFixed(2)}t) · Cos(${k.toFixed(2)}x)`,
     },
     "abierta-abierta": {
       factor: 2, // Factor multiplicativo para esta condición
-      E: (k, w) =>
-        `E(x,t) = ${2 * constants.E0} · Cos(${k.toFixed(2)}x) · Cos(${w.toFixed(2)}t)`,
-      B: (k, w) =>
-        `B(x,t) = ${2 * constants.B0} · Sin(${k.toFixed(2)}x) · Sin(${w.toFixed(2)}t)`,
+      E: (k, w, E0) =>
+        `E(x,t) = ${2 * E0} · Cos(${k.toFixed(2)}x) · Cos(${w.toFixed(2)}t)`,
+      B: (k, w, B0) =>
+        `B(x,t) = ${2 * B0} · Sin(${k.toFixed(2)}x) · Sin(${w.toFixed(2)}t)`,
     },
     "abierta-cerrada": {
       factor: 1, // Sin multiplicador adicional
-      E: (k, w) =>
-        `E(x,t) = ${constants.E0} · Cos(${k.toFixed(2)}x) · Cos(${w.toFixed(2)}t)`,
-      B: (k, w) =>
-        `B(x,t) = ${constants.B0} · Sin(${k.toFixed(2)}x) · Cos(${w.toFixed(2)}t)`,
+      E: (k, w, E0) =>
+        `E(x,t) = ${E0} · Cos(${k.toFixed(2)}x) · Cos(${w.toFixed(2)}t)`,
+      B: (k, w, B0) =>
+        `B(x,t) = ${B0} · Sin(${k.toFixed(2)}x) · Cos(${w.toFixed(2)}t)`,
     },
   };
-  
 
   const [inputs, setInputs] = useState({
-    L: "",   // cadena vacía en lugar de 1
-    v: "",   // cadena vacía en lugar de 1
+    L: "", // cadena vacía en lugar de 1
+    v: "", // cadena vacía en lugar de 1
     amplitude: "E",
     nodes: "", // cadena vacía en lugar de 1
   });
-  
+
   const [harmonics, setHarmonics] = useState([]);
 
   // Calcular constantes dinámicas para cada nodo
@@ -51,6 +46,7 @@ const WaveControls = () => {
     for (let n = 1; n <= nodes; n++) {
       let k, w, lambda;
 
+      // Calcular el valor de k, w y lambda según la condición de frontera
       switch (boundaryCondition) {
         case "cerrada-cerrada":
         case "abierta-abierta":
@@ -66,7 +62,12 @@ const WaveControls = () => {
       w = k * v;
       lambda = (2 * L) / n;
 
-      newHarmonics.push({ n, k, w, lambda });
+      // Suponemos que E0 y B0 son valores relacionados con la amplitud
+      // Usamos una aproximación para E0 y B0
+      const E0 = 1; // Amplitud para E (puede ajustarse según el input)
+      const B0 = E0 / v; // Relación simple para B0, que podría cambiar dependiendo del modelo
+
+      newHarmonics.push({ n, k, w, lambda, E0, B0 });
     }
 
     setHarmonics(newHarmonics);
@@ -80,14 +81,13 @@ const WaveControls = () => {
   // Manejo de cambios en inputs
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-  
+
     // Si el valor es una cadena vacía, dejamos el campo vacío
     setInputs({
       ...inputs,
       [name]: value === "" ? "" : Number(value),
     });
   };
-  
 
   // Manejo de cambio de condiciones de frontera
   const handleBoundaryChange = (e) => {
@@ -106,26 +106,21 @@ const WaveControls = () => {
       <div className="mt-4">
         <h3 className="text-lg font-semibold mb-2">Parámetros Iniciales</h3>
         <div className="grid grid-cols-1 gap-4">
-        <div className="flex items-center gap-2">
-        <label htmlFor="E0" className="block font-semibold w-1/3">
-  Amplitud (<span className="italic">E<sub>0</sub></span>):
-</label>
-
-  <input
-    type="number"
-    name="E0"
-    value={constants.E0}
-    onChange={(e) =>
-      setConstants({ ...constants, E0: parseFloat(e.target.value) || 0 })
-    }
-    className="border rounded px-2 py-1 w-2/3 text-sm"
-  />
-  <span className="ml-2">V/m</span>
-</div>
-
+          <div className="flex items-center gap-2">
+            <label htmlFor="E0" className="block font-semibold w-1/3">
+              Amplitud (<span className="italic">E<sub>0</sub></span>):
+            </label>
+            <input
+              type="number"
+              name="E0"
+              onChange={handleInputChange}
+              className="border rounded px-2 py-1 w-2/3 text-sm"
+            />
+            <span className="ml-2">V/m</span>
+          </div>
           <div className="flex items-center gap-2">
             <label htmlFor="L" className="block font-semibold w-1/3">
-              Longitud de la Cavidad: 
+              Longitud de la Cavidad:
             </label>
             <input
               type="number"
@@ -203,15 +198,15 @@ const WaveControls = () => {
       <div className="mt-4">
         <h3 className="text-lg font-semibold mb-2">Datos</h3>
         <div className="space-y-4">
-          {harmonics.map(({ n, k, w, lambda }) => (
+          {harmonics.map(({ n, k, w, lambda, E0, B0 }) => (
             <div key={n} className="text-sm font-mono">
               <p>n = {n}</p>
               <p>λ = {lambda.toFixed(2)}m</p>
-              <p dangerouslySetInnerHTML={{
-  __html: renderEquation(
-    `k = ${k.toFixed(2)} \\text{ m}^{-1}`
-  ),
-}} />
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: renderEquation(`k = ${k.toFixed(2)} \\text{ m}^{-1}`),
+                }}
+              />
               <p>w = {w.toFixed(2)}rad/s</p>
               <hr />
             </div>
@@ -220,31 +215,32 @@ const WaveControls = () => {
       </div>
 
       <div className="mt-4">
-  <h3 className="text-lg font-semibold mb-2">Ecuaciones de E y B</h3>
-  <div className="space-y-4">
-    {harmonics.map(({ n, k, w }) => (
-      <div key={n} className="text-sm font-mono">
-        {/* Título del modo y armónico */}
-        <h4 className="font-semibold text-blue-600">
+        <h3 className="text-lg font-semibold mb-2">Ecuaciones</h3>
+        <div className="space-y-4">
+          {harmonics.map(({ n, k, w, E0, B0 }) => (
+            <div key={n}>
+                <h4 className="font-semibold text-blue-600">
           Modo n = {n}. Armónico N° {n}
         </h4>
-        {/* Ecuaciones de E y B */}
-        <p
-          dangerouslySetInnerHTML={{
-            __html: renderEquation(equations[boundaryCondition].E(k, w)),
-          }}
-        />
-        <p
-          dangerouslySetInnerHTML={{
-            __html: renderEquation(equations[boundaryCondition].B(k, w)),
-          }}
-        />
-        <hr />
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: renderEquation(
+                    equations[boundaryCondition].E(k, w, E0)
+                  ),
+                }}
+              />
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: renderEquation(
+                    equations[boundaryCondition].B(k, w, B0)
+                  ),
+                }}
+              />
+              <hr />
+            </div>
+          ))}
+        </div>
       </div>
-    ))}
-  </div>
-</div>
-
     </div>
   );
 };
