@@ -351,7 +351,6 @@ const ElectromagneticWave = ({
             <OrbitControls />
           </Canvas>
         </div>
-        <p>{closedData}</p>
       </div>
     </>
   );
