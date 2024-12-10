@@ -289,7 +289,7 @@ const WaveControls = () => {
 
   const [inputs, setInputs] = useState({
     L: "10", // cadena vacía en lugar de 1
-    v: "10", // cadena vacía en lugar de 1
+    v: "300000000", // cadena vacía en lugar de 1
     amplitude: "",
     nodes: "1", // cadena vacía en lugar de 1
     E0: "",
