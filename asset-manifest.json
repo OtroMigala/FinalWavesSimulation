@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/FinalWavesSimulation/static/css/main.b140bb4d.css",
-    "main.js": "/FinalWavesSimulation/static/js/main.badfd8fd.js",
+    "main.js": "/FinalWavesSimulation/static/js/main.c2b0655b.js",
     "static/js/453.d66eefc2.chunk.js": "/FinalWavesSimulation/static/js/453.d66eefc2.chunk.js",
     "static/media/KaTeX_AMS-Regular.ttf": "/FinalWavesSimulation/static/media/KaTeX_AMS-Regular.853be92419a6c3766b9a.ttf",
     "static/media/KaTeX_Main-Regular.ttf": "/FinalWavesSimulation/static/media/KaTeX_Main-Regular.9eba1d77abcf2aa6e94e.ttf",
@@ -65,11 +65,11 @@
     "static/media/KaTeX_Size3-Regular.woff2": "/FinalWavesSimulation/static/media/KaTeX_Size3-Regular.e1951519f6f0596f7356.woff2",
     "index.html": "/FinalWavesSimulation/index.html",
     "main.b140bb4d.css.map": "/FinalWavesSimulation/static/css/main.b140bb4d.css.map",
-    "main.badfd8fd.js.map": "/FinalWavesSimulation/static/js/main.badfd8fd.js.map",
+    "main.c2b0655b.js.map": "/FinalWavesSimulation/static/js/main.c2b0655b.js.map",
     "453.d66eefc2.chunk.js.map": "/FinalWavesSimulation/static/js/453.d66eefc2.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.b140bb4d.css",
-    "static/js/main.badfd8fd.js"
+    "static/js/main.c2b0655b.js"
   ]
 }
