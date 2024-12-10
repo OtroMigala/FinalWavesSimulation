@@ -187,6 +187,16 @@ const styles = {
 
 */
 
+/*
+El verde(y) debe decir z
+El Azul(z) debe decir x
+Y el rojo(x) debe decir y
+
+rojo: #d95763
+verde: #99e550
+azul: #639bff
+*/
+
 const Axes = () => {
   return (
     <>
@@ -195,28 +205,11 @@ const Axes = () => {
           [-15, 0, 0],
           [15, 0, 0],
         ]}
-        color="#d95763"
-        lineWidth={2}
-      />
-      <Text
-        position={[16, 0, 0]}
-        fontSize={1}
-        color="#d95763"
-        anchorX="center"
-        anchorY="middle"
-      >
-        X
-      </Text>
-      <Line
-        points={[
-          [0, -15, 0],
-          [0, 15, 0],
-        ]}
         color="#99e550"
         lineWidth={2}
       />
       <Text
-        position={[0, 16, 0]}
+        position={[16, 0, 0]}
         fontSize={1}
         color="#99e550"
         anchorX="center"
@@ -226,10 +219,27 @@ const Axes = () => {
       </Text>
       <Line
         points={[
+          [0, -15, 0],
+          [0, 15, 0],
+        ]}
+        color="#639bff"
+        lineWidth={2}
+      />
+      <Text
+        position={[0, 16, 0]}
+        fontSize={1}
+        color="#639bff"
+        anchorX="center"
+        anchorY="middle"
+      >
+        Z
+      </Text>
+      <Line
+        points={[
           [0, 0, -10],
           [0, 0, 50],
         ]}
-        color="#639bff"
+        color="#d95763"
         lineWidth={2}
       />
     </>
@@ -238,7 +248,7 @@ const Axes = () => {
 
 const Wave = ({ color, formula, axis, label, l, phaseT, phaseX }) => {
   const points = [];
-  const positionLabel = axis === "x" ? [5, 4, 0] : [5, 2, 0];
+  const positionLabel = axis === "x" ? [10, 4, 0] : [10, 2, 0];
 
   // Generar puntos basados en la fórmula
   for (let z = 0; z <= l; z += 0.1) {
