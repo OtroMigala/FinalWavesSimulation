@@ -281,15 +281,15 @@ const WaveControls = () => {
     "abierta-cerrada": {
       factor: 1, // Sin multiplicador adicional
       E: (k, w, E0) =>
-        `E(x,t) = ${E0} · Cos(${k.toFixed(2)} · x) · Cos(${w.toFixed(2)} · t)`,
+        `E(x,t) = ${2 * E0} · Sin(${k.toFixed(2)} · x) · Cos(${w.toFixed(2)} · t)`,
       B: (k, w, B0) =>
-        `B(x,t) = ${B0} · Sin(${k.toFixed(2)} · x) · Cos(${w.toFixed(2)} · t)`,
+        `B(x,t) = ${2 * B0} · Sin(${w.toFixed(2)} · t) · Cos(${k.toFixed(2)} · x)`,
     },
   };
 
   const [inputs, setInputs] = useState({
     L: "10", // cadena vacía en lugar de 1
-    v: "300000000", // cadena vacía en lugar de 1
+    v: "100000000", // cadena vacía en lugar de 1
     amplitude: "",
     nodes: "1", // cadena vacía en lugar de 1
     E0: "",
